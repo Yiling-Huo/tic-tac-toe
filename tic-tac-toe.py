@@ -1,5 +1,8 @@
 import pygame
 
+########
+# Appearance
+########
 window_width = 550
 window_height = 650
 
@@ -9,12 +12,9 @@ spearmint = '#B6E2D3' # circle
 rosewater = '#D8A7B1' # grid
 rosewater_dark = '#BC8892' # button shadow
 
-def draw_board():
-    board = pygame.Rect(30, 130, 490, 490)
-    pygame.draw.rect(screen, rosewater, board)
-
-# button code from:
-# https://pythonprogramming.sssaltervista.org/buttons-in-pygame/?doing_wp_cron=1685564739.9689290523529052734375
+########
+# Classes
+########
 class Playboard:
     def __init__(self,width,height,pos,onclickFunction=None):
         #Core attributes 
@@ -37,10 +37,11 @@ class Playboard:
                 self.pressed = True
             else:
                 if self.pressed == True:
-                    # print('click')
                     self.onclickFunction()
                     self.pressed = False
 
+# button code from:
+# https://pythonprogramming.sssaltervista.org/buttons-in-pygame/?doing_wp_cron=1685564739.9689290523529052734375
 class Button:
     def __init__(self,text,width,height,pos,elevation,onclickFunction=None):
         #Core attributes 
@@ -85,20 +86,21 @@ class Button:
             else:
                 self.dynamic_elecation = self.elevation
                 if self.pressed == True:
-                    # print('click')
                     self.onclickFunction()
                     self.pressed = False
         else:
             self.dynamic_elecation = self.elevation
             self.top_color = rosewater
 
+########
+# Functions
+########
 # onClickFunctions
 def play():
-    global board, turn, playing, player
+    global board, turn, started, player
     mouse_pos = pygame.mouse.get_pos()
-    # print(mouse_pos)
     index = -1
-    if playing:
+    if started:
         if mouse_pos[0] < 190:
             if mouse_pos[1] < 300:
                 index = 0
@@ -126,7 +128,6 @@ def play():
         return
     
     if isinstance(board[index], int):
-        # player = 'O' if turn%2 == 0 else 'X'
         pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
         play_animation(index, player)
         board[index] = player
@@ -151,18 +152,21 @@ def play_animation(index, player):
             start_time = pygame.time.get_ticks()
 
 def start():
-    global playing
-    playing = True
+    global started
+    started = True
     pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
 
 def clear():
-    global board, playing, turn
-    playing = False
+    global board, turn
     board = [0,1,2,3,4,5,6,7,8]
     turn = 0
     start()
 
 # game functions
+def draw_board():
+    board = pygame.Rect(30, 130, 490, 490)
+    pygame.draw.rect(screen, rosewater, board)
+
 def win():
     global board, all_win_combos
     for win_pattern in all_win_combos:
@@ -170,9 +174,12 @@ def win():
             return True
     return False
 
+########
+# Main game
+########
 def main():
     global screen, icon, clock, button_font
-    global board, turn, playing, locations, players, player, all_win_combos
+    global board, turn, started, locations, players, player, all_win_combos
     pygame.init()
     screen = pygame.display.set_mode((window_width, window_height))
     clock = pygame.time.Clock()
@@ -183,10 +190,13 @@ def main():
     button_font = pygame.font.Font(None,28)
     text_font = pygame.font.Font(None,50)
 
-    # game 
+    # game attributes
     board = [0,1,2,3,4,5,6,7,8]
     turn = 0
-    playing = False
+    started = False
+    all_win_combos = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+    players = {'X':[pygame.transform.scale(pygame.image.load('assets/cross-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-3.png'),(150,150))], 'O':[pygame.transform.scale(pygame.image.load('assets/circle-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-3.png'),(150,150))]}
+    locations = {0:(40, 140), 1:(200, 140), 2:(360, 140), 3:(40, 300), 4:(200, 300), 5:(360, 300), 6:(40, 460), 7:(200, 460), 8:(360, 460)}
 
     # player images
     cross = pygame.transform.scale(pygame.image.load('assets/cross-4.png'),(150,150))
@@ -194,19 +204,12 @@ def main():
     cross_icon = pygame.transform.scale(pygame.image.load('assets/cross-4.png'),(50,50))
     circle_icon = pygame.transform.scale(pygame.image.load('assets/circle-4.png'),(50,50))
 
-    # game basic info (best here or outside any loop?)
-    locations = {0:(40, 140), 1:(200, 140), 2:(360, 140), 3:(40, 300), 4:(200, 300), 5:(360, 300), 6:(40, 460), 7:(200, 460), 8:(360, 460)}
-    play_areas = [Playboard(150,150,location,play) for location in locations.values()]
-
-    players = {'X':[pygame.transform.scale(pygame.image.load('assets/cross-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-3.png'),(150,150))], 'O':[pygame.transform.scale(pygame.image.load('assets/circle-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-3.png'),(150,150))]}
-
-    all_win_combos = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
-
-    # (re-)start buttons
+    # buttons
     start_button = Button('start', 70, 25, (240, 75), 3, start)
     restart_button = Button('another game', 150, 25, (200, 85), 3, clear)
+    play_areas = [Playboard(150,150,location,play) for location in locations.values()]
     
-    # game loop
+    # main loop
     draw_board()
     while True:
         for event in pygame.event.get():
@@ -215,7 +218,8 @@ def main():
         for area in play_areas:
             area.draw()
 
-        if not playing:
+        # manage buttons and messages
+        if not started:
             message = text_font.render('Welcome to TicTacToe Lite!', True, rosewater_dark)
             screen.blit(message, message.get_rect(center = (275, 35)))
             start_button.draw()
@@ -225,8 +229,9 @@ def main():
             screen.blit(message, message.get_rect(center = (275, 50)))
             screen.blit(circle_icon, (380, 27)) if player == 'O' else screen.blit(cross_icon, (380, 27))
             if win():
+                board = ['E' if isinstance(item, int) else item for item in board] # replace empty board with E-nd to prevent further playing
                 pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
-                screen.blit(circle_icon, (200, 17)) if player == 'X' else screen.blit(cross_icon, (200, 17))
+                screen.blit(circle_icon, (200, 17)) if player == 'X' else screen.blit(cross_icon, (200, 17)) # player == X instead of O because after the winning turn the turn turns once
                 message = text_font.render('       wins!', True, rosewater_dark)
                 screen.blit(message, message.get_rect(center = (275, 42)))
                 restart_button.draw()
