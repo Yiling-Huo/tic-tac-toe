@@ -195,14 +195,14 @@ def main():
     turn = 0
     started = False
     all_win_combos = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
-    players = {'X':[pygame.transform.scale(pygame.image.load('assets/cross-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-3.png'),(150,150))], 'O':[pygame.transform.scale(pygame.image.load('assets/circle-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-3.png'),(150,150))]}
     locations = {0:(40, 140), 1:(200, 140), 2:(360, 140), 3:(40, 300), 4:(200, 300), 5:(360, 300), 6:(40, 460), 7:(200, 460), 8:(360, 460)}
 
-    # player images
+    # player images and animation frames
     cross = pygame.transform.scale(pygame.image.load('assets/cross-4.png'),(150,150))
     circle = pygame.transform.scale(pygame.image.load('assets/circle-4.png'),(150,150))
     cross_icon = pygame.transform.scale(pygame.image.load('assets/cross-4.png'),(50,50))
     circle_icon = pygame.transform.scale(pygame.image.load('assets/circle-4.png'),(50,50))
+    players = {'X':[pygame.transform.scale(pygame.image.load('assets/cross-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/cross-3.png'),(150,150))], 'O':[pygame.transform.scale(pygame.image.load('assets/circle-1.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-2.png'),(150,150)), pygame.transform.scale(pygame.image.load('assets/circle-3.png'),(150,150))]}
 
     # buttons
     start_button = Button('start', 70, 25, (240, 75), 3, start)
