@@ -10,4 +10,4 @@ Make sure pygame is installed by running `pip install pygame` in a command promp
 
 Clone this repository to your local directory.
 
-Run tic-tac-toe.py. 
+Run tic-tac-toe.pyw. 

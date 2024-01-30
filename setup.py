@@ -1,6 +1,8 @@
+# in cmd, run: py setup.py build
+
 import cx_Freeze
 
-executables = [cx_Freeze.Executable("tic-tac-toe.py", icon="icon.ico", base=None, target_name='tic-tac-toe.exe')]
+executables = [cx_Freeze.Executable("tic-tac-toe.pyw", icon="icon.ico", base=None, target_name='tic-tac-toe.exe')]
 
 cx_Freeze.setup(
     name="TicTacToe Lite",
