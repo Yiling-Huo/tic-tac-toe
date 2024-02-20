@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 
 ########
 # Appearance
@@ -224,6 +224,11 @@ def main():
     button_font = pygame.font.Font(None,28)
     text_font = pygame.font.Font(None,50)
 
+    # manage double esc quit
+    esc_pressed = False
+    last_esc_time = 0
+    double_esc_time = 500  # milliseconds
+
     # game attributes
     board = [0,1,2,3,4,5,6,7,8]
     turn = 0
@@ -251,6 +256,19 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            # quit if esc key is pressed twice within double_esc_time (500ms)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    esc_pressed = True
+                    current_time = pygame.time.get_ticks()
+                    if esc_pressed and (current_time - last_esc_time) < double_esc_time:
+                        pygame.quit()
+                        sys.exit()
+                    esc_pressed = True
+                    last_esc_time = current_time
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    esc_pressed = False
         # draw slots
         for area in play_areas:
             area.draw()
