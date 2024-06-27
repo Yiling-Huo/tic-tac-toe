@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, random
 
 ########
 # Appearance
@@ -99,7 +99,7 @@ class Button:
 ########
 #### onClickFunctions
 def play():
-    global board, turn, started, player
+    global board, turn, started, player, against_ai
     mouse_pos = pygame.mouse.get_pos()
     index = -1
     if started:
@@ -133,6 +133,23 @@ def play():
         play_player_animation(index, player)
         board[index] = player
         turn += 1
+        if against_ai:
+            ai_player = 'X' if player == 'O' else 'O'
+            ai_play(ai_player)
+
+def ai_play(ai_player):
+    global board, turn
+    if win():
+        return
+    try:
+        pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
+        # ai_player = player
+        ai_index = ai_move()
+        play_player_animation(ai_index, ai_player)
+        board[ai_index] = ai_player
+        turn += 1
+    except KeyError:
+        return
 
 def play_player_animation(index, player):
     global players, locations, cross, circle, locations, board
@@ -161,8 +178,15 @@ def play_player_animation(index, player):
             start_time = pygame.time.get_ticks()
 
 def start():
-    global started
+    global started, turn
     draw_board()
+    started = True
+    pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
+
+def start_ai():
+    global started, turn, against_ai
+    draw_board()
+    against_ai = True
     started = True
     pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
 
@@ -208,12 +232,36 @@ def play_winning_animation(index):
                 delay_count += 1
                 start_time = pygame.time.get_ticks()
 
+def ai_move():
+    global board, all_win_combos, player
+    threat = {}
+    for win_pattern in all_win_combos:
+        this_threat = 0
+        for i in win_pattern:
+            if board[i] == player:
+                this_threat += 1
+        try:
+            threat[this_threat].append(win_pattern)
+        except KeyError:
+            threat[this_threat] = [win_pattern]
+    for l in [2,1]:
+        if l in threat:
+            random.shuffle(threat[l])
+            for pt in threat[l]:
+                for p in pt:
+                    try:
+                        int(board[p])
+                        return p
+                    except ValueError:
+                        continue
+    return random.choice(board)
+
 ########
 # Main game
 ########
 def main():
     global screen, icon, clock, button_font
-    global board, turn, started, iter, locations, players, player, all_win_combos, winning_frames, circle, cross
+    global board, turn, started, iter, locations, players, player, all_win_combos, winning_frames, circle, cross, against_ai
     pygame.init()
     screen = pygame.display.set_mode((window_width, window_height))
     clock = pygame.time.Clock()
@@ -232,6 +280,7 @@ def main():
     # game attributes
     board = [0,1,2,3,4,5,6,7,8]
     turn = 0
+    against_ai = False
     started = False
     iter = 1
     all_win_combos = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
@@ -246,7 +295,8 @@ def main():
     winning_frames = {0:[pygame.image.load('assets/win-1-'+str(i)+'.png') for i in range(1,5)], 1:[pygame.image.load('assets/win-2-'+str(i)+'.png') for i in range(1,5)], 2:[pygame.image.load('assets/win-3-'+str(i)+'.png') for i in range(1,5)], 3:[pygame.image.load('assets/win-4-'+str(i)+'.png') for i in range(1,5)], 4:[pygame.image.load('assets/win-5-'+str(i)+'.png') for i in range(1,5)], 5:[pygame.image.load('assets/win-6-'+str(i)+'.png') for i in range(1,5)], 6:[pygame.image.load('assets/win-7-'+str(i)+'.png') for i in range(1,5)], 7:[pygame.image.load('assets/win-8-'+str(i)+'.png') for i in range(1,5)]}
 
     # buttons
-    start_button = Button('start', 70, 25, (240, 75), 3, start)
+    start_button = Button('local play', 110, 25, (120, 75), 3, start)
+    start_button_ai = Button('play against AI', 155, 25, (280, 75), 3, start_ai)
     restart_button = Button('another game', 150, 25, (200, 85), 3, clear)
     play_areas = [Playboard(150,150,location,play) for location in locations.values()]
     
@@ -284,6 +334,8 @@ def main():
             message = text_font.render('Welcome to TicTacToe Lite!', True, rosewater_dark)
             screen.blit(message, message.get_rect(center = (275, 35)))
             start_button.draw()
+            if not started:
+                start_button_ai.draw()
         else:
             player = 'O' if turn%2 == 0 else 'X'
             message = text_font.render('Now playing:     ', True, rosewater_dark)
@@ -295,7 +347,7 @@ def main():
                 # cover now playing text
                 pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
                 # show win text and restart button
-                screen.blit(circle_icon, (200, 17)) if player == 'X' else screen.blit(cross_icon, (200, 17)) # player == X instead of O because after the winning turn the turn turns once
+                screen.blit(circle_icon, (200, 17)) if player == 'X' else screen.blit(cross_icon, (200, 17)) # no longer needed in ai mode? --player == X instead of O because after the winning turn the turn turns once
                 message = text_font.render('       wins!', True, rosewater_dark)
                 screen.blit(message, message.get_rect(center = (275, 42)))
                 restart_button.draw()
