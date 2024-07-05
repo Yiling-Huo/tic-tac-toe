@@ -235,15 +235,31 @@ def play_winning_animation(index):
 def ai_move():
     global board, all_win_combos, player
     threat = {}
+    about_win = {}
     for win_pattern in all_win_combos:
         this_threat = 0
+        this_win = 0
         for i in win_pattern:
             if board[i] == player:
                 this_threat += 1
+            elif board[i] == 'X' if player == 'O' else 'O':
+                this_win += 1
         try:
             threat[this_threat].append(win_pattern)
         except KeyError:
             threat[this_threat] = [win_pattern]
+        try:
+            about_win[this_win].append(win_pattern)
+        except KeyError:
+            about_win[this_win] = [win_pattern]
+    if 2 in about_win:
+        for pt in about_win[2]:
+            for p in pt:
+                try:
+                    int(board[p])
+                    return p
+                except ValueError:
+                    continue
     for l in [2,1]:
         if l in threat:
             random.shuffle(threat[l])
