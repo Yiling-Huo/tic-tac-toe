@@ -128,14 +128,16 @@ def play():
             return
     else:
         return
-    if isinstance(board[index], int):
-        pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
-        play_player_animation(index, player)
-        board[index] = player
-        turn += 1
-        if against_ai:
-            ai_player = 'X' if player == 'O' else 'O'
-            ai_play(ai_player)
+    if index >= 0:
+        if isinstance(board[index], int):
+            pygame.draw.rect(screen, cream, pygame.Rect(0, 0, 550, 130))
+            play_player_animation(index, player)
+            board[index] = player
+            turn += 1
+            if against_ai:
+                ai_player = 'X' if player == 'O' else 'O'
+                ai_play(ai_player)
+    return
 
 def ai_play(ai_player):
     global board, turn
@@ -253,6 +255,7 @@ def ai_move():
         except KeyError:
             about_win[this_win] = [win_pattern]
     if 2 in about_win:
+        random.shuffle(about_win[2])
         for pt in about_win[2]:
             for p in pt:
                 try:
